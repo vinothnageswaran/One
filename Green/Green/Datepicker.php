@@ -57,7 +57,7 @@ tab3 {
 	transition: all 50000ms ease;
 }
 </style>
-		<h2 class="title">PSS Test Automation Summary Report1</h2>
+		<h2 class="title">PSS Test Automation Summary Report</h2>
 <?php
 $link_address1 = 'csv2sql.php';
 echo str_repeat('&nbsp;', 450);
