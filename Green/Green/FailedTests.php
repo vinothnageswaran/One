@@ -76,9 +76,13 @@ session_start();
 
 
 
-// Create connection			
+// Create connection	
+
+
 
 $conn = mysqli_connect($servername, $username, $password, $database);
+
+global $conn;
 // Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
@@ -149,6 +153,7 @@ if (!$conn) {
 			<th class='th-sm'>Sno</th>
 			<th>Test case</th>
 			<th>Status</th>
+            <th>Failed Count</th>
 		
 
 			<th>Test Duration in HH:MM:SS</th>
@@ -174,7 +179,9 @@ if (!$conn) {
 			
 			$TC = $results['TestCase'];
 			
-			$FC= getFailedCount($TC,$conn);
+			$FC= getFailedCount($TC,$conn,$startdate);
+			
+			
 			
 				if($results['Status']=='PASS') // 
          echo "<td style='background-color: #f0f8ff;'>".$results['Status']."</td>"; 
@@ -187,7 +194,7 @@ if (!$conn) {
 			//echo "<td>".$results['Executiontime']."</td>";
 			//echo "<td>".$results['Stime']."</td>";
 			//echo "<td>".$results['Etime']."</td>";
-			
+         echo"<td>$FC</td>";
 			
 			
 			
@@ -251,32 +258,67 @@ if (!$conn) {
 		
 		
 		
-		function getFailedCount($TC)
+		function getFailedCount($TC,$conn,$startdate)
 		
 		
 		{
 		    
+		    
+		    $date=getlastrundate($startdate,$conn);
 		   
 		    
-		    $FCCount = "SELECT Count(TestCase) as FC FROM PSSAUTO where Executiondate='2018-12-31' and TestCase =$TC";
+		    $FCCount = "SELECT STATUS as FC FROM PSSAUTO where Executiondate='$date' and TESTCASE ='$TC'";
 		    
 		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn)); 
 
 		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
 		        
-		        $FCresutls['FC'] ;
+		        if($FCresutls['FC']=='FAIL')
+		            $FCC=2;
+		            
+		            else 
+		                
+		                $FCC =1;
+		            
 		        
 		        
 		    }
 
-		    return $FCCount;
+		    return $FCC;
 		    
 		}
 		
+		function getlastrundate($startdate,$conn)
+		
+		{
+		    $lastrundate=$lastrundate =date('Y-m-d', strtotime('-1 days', strtotime($startdate))); ;
+		    
+		    $FCCount = "SELECT COUNT(STATUS) as FC FROM PSSAUTO where Executiondate=' $lastrundate'";
+		    
+		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn));
+		    
+		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
+		    
+		        if($FCresutls['FC']>0)
+		            $lastrundate = $startdate;
+		            
+		            else
+		            {
+		                $lastrundate =date('Y-m-d', strtotime('-1 days', strtotime($lastrundate)));
+		                
+		                getlastrundate($startdate,$conn);
+		            }
+		}
+		
+		echo $lastrundate;
+		
+		return  $lastrundate;
+		
+		}
 		
 	
 		
-
+     
          
 
 ?>
