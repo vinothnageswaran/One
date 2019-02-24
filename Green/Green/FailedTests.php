@@ -161,7 +161,9 @@ if (!$conn) {
 			
 			
 		$sno=0;
-				
+		
+	
+			
 					
 		while($results = mysqli_fetch_assoc($raw_results)){
 			
@@ -169,6 +171,10 @@ if (!$conn) {
 			echo "<tr>";
 			echo"<td>$sno</td>";
 			echo "<td>".$results['TestCase']."</td>";
+			
+			$TC = $results['TestCase'];
+			
+			$FC= getFailedCount($TC,$conn);
 			
 				if($results['Status']=='PASS') // 
          echo "<td style='background-color: #f0f8ff;'>".$results['Status']."</td>"; 
@@ -243,6 +249,32 @@ if (!$conn) {
 			
 		}
 		
+		
+		
+		function getFailedCount($TC)
+		
+		
+		{
+		    
+		   
+		    
+		    $FCCount = "SELECT Count(TestCase) as FC FROM PSSAUTO where Executiondate='2018-12-31' and TestCase =$TC";
+		    
+		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn)); 
+
+		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
+		        
+		        $FCresutls['FC'] ;
+		        
+		        
+		    }
+
+		    return $FCCount;
+		    
+		}
+		
+		
+	
 		
 
          
