@@ -225,7 +225,9 @@ if (!$conn) {
 			echo"<td>
 			<span style='font-weight:bold'>Total FAIL</span><br></td>" ; 
 			"<br></br>";
-			echo "<td><span style='font-weight:bold'>".$results1['FAIL']."</span></td>";
+			//echo "<td><span style='font-weight:bold'>".$results1['FAIL']."</span></td>";
+			
+			echo "<td><a href=FailedTests.php?compna=",urlencode($startdate),">".$results1['FAIL']."</a></td>";
 			echo " </tr>";
 			
 			//echo"<td></td>";

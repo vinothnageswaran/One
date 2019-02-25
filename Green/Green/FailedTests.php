@@ -72,7 +72,7 @@ echo "\t" ;
 echo "\t" ;
 
 
-session_start();
+//session_start();
 
 
 
@@ -91,9 +91,11 @@ if (!$conn) {
   			
 			//$ReverseStartdate = $_GET["datepicker1"];
 			//$startdate=date("Y-m-d", strtotime($ReverseStartdate) );
-			$startdate ='2019-01-01';
+			//$startdate ='2019-01-01';
 			
-		//$startdate = $_GET['compna']; 
+		$startdate = $_GET['compna']; 
+		
+		$_SESSION["$startdate"] = $startdate;
 		//$startdate = $_SESSION["execdate"];
 		
 		$query1 = "SELECT TestCase,Status,Executiondate, TIME(Starttime) as Stime , TIME(Endtime) as Etime , Errormessage FROM PSSAUTO where Executiondate='$startdate' and status <> 'PASS' order by Executiontime";
@@ -179,7 +181,9 @@ if (!$conn) {
 			
 			$TC = $results['TestCase'];
 			
-			$FC= getFailedCount($TC,$conn,$startdate);
+			//$FC= getFailedCount($TC,$conn,$startdate);
+			
+			$FC=0;
 			
 			
 			
@@ -264,10 +268,10 @@ if (!$conn) {
 		{
 		    
 		    
-		    $date=getlastrundate($startdate,$conn);
-		   
+		    //$date=getlastrundate($startdate,$conn);
+		   $FCC=0;
 		    
-		    $FCCount = "SELECT STATUS as FC FROM PSSAUTO where Executiondate='$date' and TESTCASE ='$TC'";
+		    $FCCount = "SELECT STATUS as FC FROM PSSAUTO where Executiondate='$startdate' and TESTCASE ='$TC'";
 		    
 		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn)); 
 
