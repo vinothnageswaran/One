@@ -179,11 +179,17 @@ if (!$conn) {
 			echo"<td>$sno</td>";
 			echo "<td>".$results['TestCase']."</td>";
 			
+			
+			
 			$TC = $results['TestCase'];
 			
-			//$FC= getFailedCount($TC,$conn,$startdate);
+			$truncatedTC= substr($TC, 15);
 			
-			$FC=0;
+			//echo "<td><a href=FailedTestDetails.php?compna=",$truncatedTC,">$TC</a></td>";
+			
+			$FC= getFailedCount($TC,$conn,$startdate);
+			
+			//$FC=0;
 			
 			
 			
@@ -198,7 +204,15 @@ if (!$conn) {
 			//echo "<td>".$results['Executiontime']."</td>";
 			//echo "<td>".$results['Stime']."</td>";
 			//echo "<td>".$results['Etime']."</td>";
-         echo"<td>$FC</td>";
+        // echo"<td>$FC</td>";
+		
+		//$truncatedTC= substr($TC, 15);
+		
+		//echo $truncatedTC;
+		 
+		 //	echo "<td><a href=FailedTestDetails.php?compna1=",urlencode($TC),">$FC</a></td>";
+		 
+		 echo "<td><a href=FailedTestDetails.php?compna=",$truncatedTC,">$FC</a></td>";
 			
 			
 			
@@ -271,24 +285,42 @@ if (!$conn) {
 		    //$date=getlastrundate($startdate,$conn);
 		   $FCC=0;
 		    
-		    $FCCount = "SELECT STATUS as FC FROM PSSAUTO where Executiondate='$startdate' and TESTCASE ='$TC'";
+		    $FCCount = "select count(*) as FC from pssauto where status ='FAIL'and TESTCASE ='$TC' order by Executiondate desc";
 		    
 		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn)); 
 
 		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
 		        
-		        if($FCresutls['FC']=='FAIL')
-		            $FCC=2;
-		            
-		            else 
-		                
-		                $FCC =1;
+		                $FCC =$FCresutls['FC'];
 		            
 		        
 		        
 		    }
 
 		    return $FCC;
+		    
+		}
+		
+		function getFailedTestDetails($TC,$conn,$startdate)
+		
+		
+		{
+		    
+		    
+		    //$date=getlastrundate($startdate,$conn);
+		   $FailTestDetails="";
+		    
+		    $FCCount = "select * as FTD from pssauto where status ='FAIL'and TESTCASE ='$TC' order by Executiondate desc";
+		    
+		    $FC_rawresults = mysqli_query($conn," $FCCount") or die(mysqli_error($conn)); 
+
+		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
+		        
+		                $FCC =$FCresutls['FTD'];
+		            
+		      }
+
+		    return  $FailTestDetails;
 		    
 		}
 		
