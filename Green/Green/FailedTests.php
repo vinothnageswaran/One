@@ -155,7 +155,8 @@ if (!$conn) {
 			<th class='th-sm'>Sno</th>
 			<th>Test case</th>
 			<th>Status</th>
-            <th>Failed Count</th>
+            <th>Failed Count in days</th>
+			<th>Failed only today</th>
 		
 
 			<th>Test Duration in HH:MM:SS</th>
@@ -168,6 +169,7 @@ if (!$conn) {
 			
 			
 		$sno=0;
+		$Failedonlytodaycount=0;
 		
 	
 			
@@ -213,6 +215,14 @@ if (!$conn) {
 		 //	echo "<td><a href=FailedTestDetails.php?compna1=",urlencode($TC),">$FC</a></td>";
 		 
 		 echo "<td><a href=FailedTestDetails.php?compna=",$truncatedTC,">$FC</a></td>";
+		 
+		 $Failedonlytoday = getnewlyfailedtestresult($TC,$conn);
+		 
+		 echo "<td>$Failedonlytoday</td>";
+		 
+		 if($Failedonlytoday== 'YES')
+			 $Failedonlytodaycount=$Failedonlytodaycount+1;
+			 
 			
 			
 			
@@ -262,13 +272,17 @@ if (!$conn) {
 			echo "<tr>";
 			
 			echo"<td></td>";
-			
 			echo"<td>
-			<span style='font-weight:bold'>Grand Total</span><br></td>" ; 
-			"<br></br>";
-			echo "<td><span style='font-weight:bold'>$GrandTotal</span></td>";
 			
-			echo " </tr>";
+			<span style='font-weight:bold'>Newly Failed</span><br></td>" ; 
+			
+			"<br></br>";
+			
+			echo "<td><span style='font-weight:bold'>$Failedonlytodaycount</span></td>";
+			
+			
+			
+			echo "<tr>";
 			
 			
 			
@@ -323,6 +337,34 @@ if (!$conn) {
 		    return  $FailTestDetails;
 		    
 		}
+		
+		function getnewlyfailedtestresult($TC,$conn)
+		
+		{
+		
+		$test_Previousstatus="";		
+			
+		$Failedstatusquery= "select status as PreviousStatus from pssauto where  TESTCASE ='$TC' order by Executiondate desc LIMIT 1,1";
+			
+		 $FC_rawresults = mysqli_query($conn,"$Failedstatusquery") or die(mysqli_error($conn)); 
+
+		    while($FCresutls = mysqli_fetch_assoc($FC_rawresults)){
+		        
+		                $test_Previousstatus =$FCresutls['PreviousStatus'];
+						
+						if ($test_Previousstatus == 'FAIL')
+						$test_Previousstatus ='NO';
+						else
+						$test_Previousstatus ='YES';									
+		            
+		      }
+
+		    return  $test_Previousstatus;	
+			
+			
+		}
+		
+		
 		
 		function getlastrundate($startdate,$conn)
 		

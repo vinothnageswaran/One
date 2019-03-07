@@ -156,7 +156,7 @@ if (!$conn) {
 			
 		//To display fortnightly
 		
-		for($i=0;$i<=14;$i++)
+		for($i=0;$i<=40;$i++)
 			
 			{
 				
@@ -226,7 +226,9 @@ if (!$conn) {
 			
 			echo "<td>".$results['Testcase']."</td>";
 			echo "<td>".$results['PASS']." </td>";
-			echo "<td>".$results['FAIL']." </td>";
+			
+			echo "<td><a href=FailedTests.php?compna=",urlencode($startdate),"><u>".$results['FAIL']."</u></a></td>";
+			//echo "<td>".$results['FAIL']." </td>";
 			echo "<td>".$results2['Stime']." </td>";
 			echo "<td>".$results2['Etime']." </td>";
 			//echo "<td>".$results1['percentage']." </td>";
