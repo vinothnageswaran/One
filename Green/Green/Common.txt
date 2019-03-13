@@ -1,0 +1,1287 @@
+//USEUNIT CommonUI_Old
+//USEUNIT Reports
+
+
+function restartServices() {
+    Indicator.PushText("Services Restarting.....");
+    aqUtils.Delay(2000, Indicator.Text);
+    var file = Project.Path + "Stores\\Files\\RestartRunningStuff.ps1"
+    //var cmd = Sys.OleObject("WScript.Shell").Run("\"" + file + "\"", 0, true);
+    var cmd = Sys.OleObject("WScript.Shell").Run("powershell -ExecutionPolicy Bypass -file \"" + file + "\"", 0, true);
+    Indicator.PopText();
+    Delay(2000);
+}
+
+function stopServices() {
+    Indicator.PushText("Services stopping.....");
+    aqUtils.Delay(2000, Indicator.Text);
+    var file = Project.Path + "Stores\\Files\\StopRunningStuff.ps1"
+    //var cmd = Sys.OleObject("WScript.Shell").Run("\"" + file + "\"", 0, true);
+    var cmd = Sys.OleObject("WScript.Shell").Run("powershell -ExecutionPolicy Bypass -file \"" + file + "\"", 0, true);
+    Indicator.PopText();
+    Delay(2000);
+}
+
+function startServices() {
+    Indicator.PushText("Services Starting.....");
+    aqUtils.Delay(2000, Indicator.Text);
+    var file = Project.Path + "Stores\\Files\\StartRunningStuff.ps1"
+    //var cmd = Sys.OleObject("WScript.Shell").Run("\"" + file + "\"", 0, true);
+    var cmd = Sys.OleObject("WScript.Shell").Run("powershell -ExecutionPolicy Bypass -file \"" + file + "\"", 0, true);
+    Indicator.PopText();
+    Delay(2000);
+}
+
+function checkConfigTable() {
+    //Runs a script routine.
+    DBTables.Configuration_Table.Check();
+}
+
+function GeneralEvents_OnTimeout(Sender, Params) {
+    restoreSynonyms();
+    runSQLFile("Restore_Configuration_Table");
+    Runner.Stop(true);
+}
+
+function Generate(type) {
+
+    var startHorizon = aqDateTime.Today();
+    var endHorizon = (aqDateTime.AddSeconds(aqDateTime.AddDays(aqDateTime.Today(), 6), 86399));
+    var ctype, gtype, lineup, lineupsequence;
+    var LockedInLineUpLimitDate, LockedInLineUpSequenceDate,LockedInLineUpAdjustableLimit;
+    var ss = "0";
+    var WebServiceInfo, Obj;
+    var libraryToUse = GenerationLibraries();
+
+    if (type == "GENERATION") {
+        ctype = "LIVE";
+        
+        if (ProjectSuite.Variables.lockedInLineUpLimit == true) {
+            lineup = getConfigValue("LockedInLineUpHorizon");
+        
+            LockedInLineUpLimitDate = (aqDateTime.AddHours(aqDateTime.Now(), lineup)); 
+            LockedInLineUpAdjustableLimit = (aqDateTime.AddHours(aqDateTime.Now(),72)); 
+        }
+
+        if (ProjectSuite.Variables.lockedInLineUpSequence == true) {
+            lineup = getConfigValue("LockedInLineUpHorizon");
+            lineupsequence = getConfigValue("LockedInLoadingSequenceHorizon");
+            
+            LockedInLineUpLimitDate = (aqDateTime.AddHours(aqDateTime.Now(), lineup));
+            LockedInLineUpSequenceDate = (aqDateTime.AddHours(aqDateTime.Now(), lineupsequence));
+        }
+    }
+
+    if (type == "CONSTRAINT") {
+        ctype = "BOTH", type = "GENERATION";
+    }
+
+    if (type == "SIMULATION") {
+        ctype = "BOTH";
+        type = "GENERATION";
+        ss = latestScenarioId();
+
+    }
+
+    if (type == "BASELINE") {
+        ctype = "LIVE", type = "BASELINE";
+
+        endHorizon = BaselineHorizonEnd();
+
+    }
+
+    if (type == "DEVIATION") {
+        ctype = "LIVE", type = "DEVIATION";
+
+        endHorizon = (aqDateTime.AddSeconds(aqDateTime.AddDays(aqDateTime.Today(), 2), 86399));
+
+    }
+    
+    
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.CreateGenerationRequest;
+
+    // Modifies the object’s properties
+   // Obj.CloneTo = "1/01/0001 12:00:00";
+   
+    Obj.Description = "";
+    Obj.EndDateTime = endHorizon;
+    Obj.GenerationConstraintType = ctype;
+    //Obj.IsBaseline = "false";
+    Obj.Libraries = libraryToUse;
+    Obj.Name = "Generation";
+    Obj.ScenarioGenerationType = type;
+    //Obj.SourceScenarioId = ss;
+    Obj.StartDateTime = startHorizon;
+    Obj.User = "Automation";
+    Obj.LockedInLineUpLimit = LockedInLineUpLimitDate;
+    Obj.lockedInLoadSequenceLimit = LockedInLineUpSequenceDate;
+    Obj.LockedInLineUpAdjustableLimit = LockedInLineUpAdjustableLimit;
+    Obj.SchedulingFunction = "Weekly";
+    Obj.PerformPstSynchronisation = Project.Variables.PstSynchronisation;
+    Obj.PstGapInfill = Project.Variables.PstGap;
+    Obj.PstHorizonHours= 12 ;
+   
+    
+
+    
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.CreateGeneration(Obj);
+
+    Delay(1000);
+    waitforGeneration(ctype, type);
+
+}
+
+function ManualOptimisation()
+
+{
+var Obj,blpObj;
+Obj = WebServices.LST.TypeFactory.SaveManualLineUpRequest;
+blpObj = WebServices.LST.TypeFactory.ManualLineUpBerth;
+Obj.User ="Automation";
+Obj.SourceScenarioId =latestScenarioId();
+Obj.SchedulingFunction="WEEKLY";
+Obj.BerthLineUps=WebServices.LST.TypeFactory.ArrayOfManualLineUpBerth;
+ManualLineUpBerth();
+WebServices.LST.SaveManualLineUp(Obj);
+
+}
+
+function ManualLineUpBerth()
+{
+  var Result;
+  var TypeFactory;
+  //Get the type factory for the web service
+  TypeFactory = WebServices.LST.TypeFactory;
+  Result = TypeFactory.ManualLineUpBerth;
+  Result.BerthAfter = null ;
+  Result.BerthCode = "A";
+  Result.BerthSequence =0 ;
+  Result.ConstraintEdited =false ;
+  Result.EarliestBerthTime = null ;
+  Result.ForceToBerth =true ;
+  Result.IsDecouplingCandidate =false ;
+  //Result.NominationNumber =999999 ;
+  Result.ProductLoadOrder = "";
+ // Result.VesselImo = 000000 ; 
+  return Result;
+}
+
+
+
+function callGenerate(type) {
+
+    var startHorizon = aqDateTime.Today();
+    var endHorizon = (aqDateTime.AddSeconds(aqDateTime.AddDays(aqDateTime.Today(), 6), 86399));
+    var ctype, gtype;
+    var ss = "0";
+    var WebServiceInfo, Obj;
+    var libraryToUse = GenerationLibraries();
+
+    if (type == "GENERATION") {
+        ctype = "LIVE"
+    }
+
+    if (type == "CONSTRAINT") {
+        ctype = "BOTH", type = "GENERATION";
+    }
+
+    if (type == "SIMULATION") {
+        ctype = "BOTH";
+
+        ss = latestScenarioId();
+
+    }
+
+    if (type == "BASELINE") {
+        ctype = "LIVE", type = "BASELINE";
+
+        endHorizon = BaselineHorizonEnd();
+
+    }
+
+    if (type == "DEVIATION") {
+        ctype = "LIVE", type = "DEVIATION";
+
+        endHorizon = (aqDateTime.AddSeconds(aqDateTime.AddDays(aqDateTime.Today(), 2), 86399));
+
+    }
+
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.CreateGenerationRequest;
+
+    // Modifies the object’s properties
+  //  Obj.CloneTo = "1/01/0001 12:00:00";
+    Obj.Description = "";
+    Obj.EndDateTime = endHorizon;
+    Obj.GenerationConstraintType = ctype;
+    //Obj.IsBaseline = "false";
+    Obj.Libraries = libraryToUse;
+    Obj.Name = "Generation";
+    Obj.ScenarioGenerationType = type;
+    //Obj.SourceScenarioId = ss;
+    Obj.StartDateTime = startHorizon;
+    Obj.User = "Automation";
+    Obj.SchedulingFunction ="Weekly";
+     
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.CreateGeneration(Obj);
+    Delay(500);
+
+}
+
+function GenerationLibraries(){
+    var Result;
+    var TypeFactory;
+  //Get the type factory for the web service
+    TypeFactory = WebServices.LST.TypeFactory;
+    Result = TypeFactory.ArrayOfGenerationLibrary;
+  //Generating the array property. Choose the lower and upper array bounds that meet your needs
+    Result.GenerationLibrary = BuiltIn.CreateVariantArray(0,0);
+  
+  //Structure for more than one generation library
+  //var i;
+  //for(i = BuiltIn.VarArrayLowBound(Result.GenerationLibrary, 1); //i <= BuiltIn.VarArrayHighBound(Result.GenerationLibrary, 1); i++)
+  //{
+    BuiltIn.VarArrayLowBound(Result.GenerationLibrary, 1); //Remove this line is using for loop
+    Result.GenerationLibrary(0) = TypeFactory.GenerationLibrary;
+    Result.GenerationLibrary(0).LibraryName = "Default" ; //Sets the Default library to be used
+    //var currentDateAndMidnight = aqConvert.DateTimeToStr(aqDateTime.Today()) + " 00:00:00";
+    Result.GenerationLibrary(0).StartDateTime = aqDateTime.Now(); //ideally should be set to midnight
+  //}
+    return Result;
+}
+   
+
+function BaselineHorizonStart() {
+
+    var today = aqDateTime.GetDayOfWeek(aqDateTime.Today())
+    var day, result;
+
+    switch (today) {
+        case 1:
+            day = 8;
+            break;
+        case 2:
+            day = 7;
+            break;
+        case 3:
+            day = 6;
+            break;
+        case 4:
+            day = 5;
+            break;
+        case 5:
+            day = 4;
+            break;
+        case 6:
+            day = 3;
+            break;
+        case 7:
+            day = 2;
+            break;
+
+    }
+
+    result = aqDateTime.AddDays(aqDateTime.Today(), day);
+
+    return result;
+}
+
+
+function BaselineHorizonEnd() {
+
+    var today = aqDateTime.GetDayOfWeek(aqDateTime.Today())
+    var day, result;
+
+    switch (today) {
+        case 1:
+            day = 8;
+            break;
+        case 2:
+            day = 14;
+            break;
+        case 3:
+            day = 13;
+            break;
+        case 4:
+            day = 12;
+            break;
+        case 5:
+            day = 11;
+            break;
+        case 6:
+            day = 10;
+            break;
+        case 7:
+            day = 9;
+            break;
+
+    }
+
+    result = aqDateTime.AddSeconds(aqDateTime.Today(), ((day * 86400) - 1));
+
+    return result;
+}
+
+
+function PromoteScenario() {
+
+    Delay(1000);
+    var WebServiceInfo, Obj;
+    var sId = latestScenarioId();
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.PromoteScenarioToLiveRequest;
+
+    // Modifies the object’s properties
+    Obj.ScenarioId = sId;
+    Obj.SchedulingFunction = "Weekly";
+    Obj.UserName = "Automation";
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.PromoteScenarioToLive(Obj);
+    Delay(1000);
+}
+
+function PublishScenario() {
+
+    Delay(1000);
+    var WebServiceInfo, Obj;
+    var sId = latestPromotedScenarioId();
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.PublishScenarioRequest;
+
+    // Modifies the object’s properties
+    Obj.ScenarioId = sId;
+    Obj.SchedulingFunction = "Weekly";
+    Obj.UserName = "Automation";
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.PublishScenario(Obj);
+    Delay(1000);
+}
+
+function BaselineScenario() {
+    latestScenarioId();
+
+    var WebServiceInfo, Obj;
+    var sId = latestScenarioId();
+    var start = BaselineHorizonStart();
+    var end = BaselineHorizonEnd();
+
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.UpdateBaselineScenarioRequest;
+
+    // Modifies the object’s properties
+    Obj.BaselineEnd = end;
+    Obj.BaselineStart = start;
+    Obj.ScenarioId = sId;
+    Obj.UserName = "Automation";
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.UpdateBaselineScenario(Obj);
+}
+
+function BaselineVessel() {
+    latestScenarioId();
+
+    var WebServiceInfo, Obj;
+    var birthcode = 'A';
+    var sId = latestScenarioId();
+    var Nominationnumber = 1;
+    var user = "Automation";
+    var visit = 1;
+
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServices.LST.TypeFactory.BaselineVesselRequest;
+
+    // Modifies the object’s properties
+    Obj.BerthCode = birthcode ;
+    Obj.NominationNumber = Nominationnumber;
+    Obj.LiveScenarioId = sId;
+    Obj.User= user;
+    Obj.Visit = visit;
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.BaselineVessel(Obj);
+}
+
+function Getbaselinevesselgenerateddate(param) {
+    var AConnection, recSet, result, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+    cmd.commandText = "Declare @date datetime = (SELECT max(PlanGeneratedDateTime)FROM LSTDbAutomation.dbo.VesselPlan);SELECT FORMAT(@date, 'yyyy_MM_dd_HH_mm_ss') as Plandate;";    
+    
+    recSet = cmd.Execute();
+    result = recSet.Fields("Plandate").Value
+    
+    return result;
+    
+    
+
+    AConnection.Close();
+}
+
+function Verifybaselineplan(){
+  
+  var sPath;
+  
+  var filename1 = "Baseline_Vessel_1_";
+  var filename2 = Getbaselinevesselgenerateddate();
+  var filename3 = ".xml";
+  var filename = filename1+filename2+filename3;
+  
+  sPath = "\\\\iorper-lstt01\\BHP Application Logs\\LST Scheduling Service - Automation\\Scenario\\"+ filename ;
+  if (!aqFileSystem.Exists(sPath)) 
+  Log.Error("Baseline Vessel File doesn't exist");
+    
+}
+
+ 
+ 
+
+
+
+
+function TerminateScenarioGenerationSet() {
+
+    var WebServiceInfo, Obj;
+    var sgsId = latestScenarioGenerationSetId();
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.TerminateGenerationSetRequest;
+
+    // Modifies the object’s properties
+    Obj.CanTerminateAny = "1";
+    Obj.User = "Automation";
+    Obj.ScenarioGenerationSetId = latestScenarioGenerationSetId();
+
+    // Calls the web service method and passes the object as the parameter
+    WebServices.LST.TerminateGenerationSet(Obj);
+    Delay(1000);
+
+}
+
+
+function GetVersion() {
+
+    var WebServiceInfo, Obj;
+    var sId = ProjectSuite.Variables.scenarioID;
+    var Day;
+    Day = aqConvert.DateTimeToFormatStr(aqDateTime.Today(), "%Y.%m.%d");
+
+    // Obtains the WebServiceInfo object
+    WebServiceInfo = WebServices.CreateWebServiceInfoFromItem("LST");
+    // Creates a complex parameter of the WebService method
+    Obj = WebServiceInfo.TypeFactory.GetVersionRequest;
+
+    // Calls the web service method 
+    WebServices.LST.GetVersion(Obj);
+
+    ProjectSuite.Variables.version = WebServices.LST.GetVersion(Obj).VersionNo;
+    Log.Message("LST Version " + ProjectSuite.Variables.version + " | " + Day);
+
+}
+
+function execDeleteAll() {
+    var AConnection;
+
+    // Create a Connection object and specify connection string
+    AConnection = ADO.CreateADOConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.LoginPrompt = false;
+    AConnection.Open();
+
+    AConnection.Execute_("USE [LSTIOPSDbSeedAutomation] exec DeleteAll");
+
+    AConnection.Close();
+}
+
+function runSQLFile(filename) {
+    var AConnection, runQuery;
+    var sqlFile = Project.Path + "Stores\\Files\\" + filename + ".sql"
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI)
+
+    // Create a Connection object and specify connection string
+    AConnection = ADO.CreateADOConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.LoginPrompt = false;
+    AConnection.Open();
+    Delay(1000);
+
+    try {
+        AConnection.CommandTimeout = 300;
+        runQuery = AConnection.Execute_(sqlQuery);
+    } catch (e) {
+        Log.Error(e.description);
+    }
+
+    AConnection.Close();
+}
+
+function getConfigValue(param) {
+    var AConnection, recSet, result, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    //cmd.commandText = "SELECT Parameter_Value FROM Configuration WHERE Parameter_Name = '" + param + "' AND IsLst = 1";
+    cmd.commandText = "SELECT DISTINCT v.Value as'Parameter_Value' FROM  " +
+    " Config.ConfigurationParameter AS p INNER JOIN Config.ConfigurationDimension AS " +
+    "d ON d.ParameterName = p.ParameterName INNER JOIN Config.LibraryParameterValue AS v ON v.DimensionId = d.DimensionId " + 
+    "WHERE (p.ParameterName = '" + param + "') AND (d.Engine <> 'PGS')";    
+    
+    recSet = cmd.Execute();
+    result = recSet.Fields("Parameter_Value").Value
+    return result;
+
+    AConnection.Close();
+}
+
+
+
+
+function latestScenarioId() {
+    var AConnection, recSet, result, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    cmd.commandText = "SELECT MAX(ScenarioId) as ScenarioId FROM Scenario";
+
+    recSet = cmd.Execute();
+    result = recSet.Fields("ScenarioId").Value
+    return result;
+
+    AConnection.Close();
+}
+
+function latestPromotedScenarioId() {
+    var AConnection, recSet, result, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    cmd.commandText = "SELECT MAX(ScenarioId) as ScenarioId FROM PromotedScenario " +
+        "WHERE PromotionCode = 'Live'";
+
+    recSet = cmd.Execute();
+    result = recSet.Fields("ScenarioId").Value
+    return result;
+
+    AConnection.Close();
+}
+
+function latestScenarioGenerationSetId() {
+    var AConnection, recSet, result, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    cmd.commandText = "SELECT MAX(ScenarioGenerationSetID) as ScenarioGenerationSetID " +
+        "FROM ScenarioGenerationSet";
+
+    recSet = cmd.Execute();
+    result = recSet.Fields("ScenarioGenerationSetID").Value
+    return result;
+
+    AConnection.Close();
+}
+
+function setIsAutomationRun(ar) {
+    ProjectSuite.Variables.isAutomationRun = ar;
+}
+
+function waitforGenerationStatus(status) {
+    var AConnection, recSet, result, sgsid, cmd;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    cmd.commandText = "SELECT GenerationStatus, ScenarioGenerationSetId FROM ScenarioGeneration " +
+        "WHERE ScenarioGenerationId = (SELECT MAX(ScenarioGenerationId) FROM ScenarioGeneration);";
+
+    recSet = cmd.Execute();
+    result = recSet.Fields("GenerationStatus").Value
+    sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+
+    while (result != status && result != "GENERATED" && result != "ERROR") {
+
+        Delay(100);
+        recSet = cmd.Execute();
+        result = recSet.Fields("GenerationStatus").Value
+        sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+    }
+    AConnection.Close();
+}
+
+function waitforGeneration(ctype, type) {
+    var AConnection, recSet, result, sgsid, cmd;
+    var accumulativeTime = 0;
+
+    // Create a new Connection object and specify connection string
+    AConnection = ADO.CreateConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.Open();
+    cmd = ADO.CreateCommand();
+    cmd.ActiveConnection = AConnection;
+    cmd.commandType = adCmdText;
+
+    cmd.commandText = "SELECT sg.GenerationStatus, sg.ScenarioGenerationSetId FROM ScenarioGeneration sg " +
+        "inner join ScenarioGenerationSet sgs on sgs.ScenarioGenerationSetId = sg.ScenarioGenerationSetId WHERE " +
+        "sgs.DataSetId = (SELECT MAX(DatasetId) FROM DataSet) AND sg.ConstraintType = 'LIVE'";
+
+    Indicator.PushText("Generating.....");
+    aqUtils.Delay(2000, Indicator.Text);
+    recSet = cmd.Execute();
+    result = recSet.Fields("GenerationStatus").Value
+    sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+
+    while (result != "GENERATED" && result != "ERROR") {
+
+        //if still queued after 15 min restart services
+        if (accumulativeTime == 900000) {
+
+            if (result = "QUEUED") {
+                restartServices();
+            }
+        }
+
+        Indicator.PushText("Generating.....");
+        // Delays the script execution for 2 seconds
+        aqUtils.Delay(2000, Indicator.Text);
+
+        //delay(2000);
+        accumulativeTime += 2000;
+
+        recSet = cmd.Execute();
+        result = recSet.Fields("GenerationStatus").Value
+        sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+    }
+
+    if (ctype == "BOTH") {
+
+        recSet = "";
+        result = "";
+        sgsid = "";
+        cmd.commandText = "";
+
+
+        cmd.commandText = "SELECT sg.GenerationStatus, sg.ScenarioGenerationSetId FROM ScenarioGeneration sg " +
+            "inner join ScenarioGenerationSet sgs on sgs.ScenarioGenerationSetId = sg.ScenarioGenerationSetId WHERE " +
+            "sgs.DataSetId = (SELECT MAX(DatasetId) FROM DataSet) AND sg.ConstraintType = 'WORKING'";
+
+        Indicator.PushText("Generating.....");
+        aqUtils.Delay(1000, Indicator.Text);
+        recSet = cmd.Execute();
+        result = recSet.Fields("GenerationStatus").Value
+        sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+
+        while (result != "GENERATED" && result != "ERROR") {
+
+            //if still queued after 15 min restart services
+            if (accumulativeTime == 900000) {
+
+                if (result = "QUEUED") {
+                    restartServices();
+                }
+            }
+
+            Indicator.PushText("Generating.....");
+            // Delays the script execution for 2 seconds
+            aqUtils.Delay(1000, Indicator.Text);
+
+            //delay(2000);
+            accumulativeTime += 1000;
+
+            recSet = cmd.Execute();
+            result = recSet.Fields("GenerationStatus").Value
+            sgsid = recSet.Fields("ScenarioGenerationSetId").Value
+        }
+
+    }
+
+    Log.Message("ScenarioGenerationSetId: " + sgsid + " | Type: " + type + " | Constraint: " + ctype);
+    AConnection.Close();
+
+    Delay(1000);
+    
+    logScenarioIds();
+    
+    Indicator.PopText();
+    Indicator.Clear();
+}
+
+function UpdateConnectionString() {
+    //Obtain a collection of the DBTable elements using the aqObject.GetProperties method
+    var props = aqObject.GetProperties(DBTables);
+    var prop;
+    var tableName;
+    var newConnectionString = ProjectSuite.Variables.myConnString;
+    var ConnectionString = "Value.ConnectionString";
+
+    while (props.HasNext()) {
+        //Move to the next property
+        prop = props.Next();
+        //Obtain the table name
+        tableName = prop.Name;
+
+        prop.Value.ConnectionString = newConnectionString;
+
+    }
+}
+
+function GeneralEvents_OnStartTest(Sender) {
+
+    UpdateConnectionString();
+    checkRoutePathStep();
+    restoreSynonyms();
+    
+    //To capture Test start time
+    
+  var date =aqConvert.DateTimeToFormatStr(aqDateTime.Today(), "%Y/%m/%d");
+  var time = aqConvert.DateTimeToFormatStr(aqDateTime.Time(), "%H:%M:%S");
+  var timestamp= date+" "+time;
+  Project.Variables.Starttime=timestamp;
+
+    if (Project.TestItems.Current != null) {
+        Indicator.PushText(Project.TestItems.Current.Name);
+    }
+}
+
+function logScenarioIds() {
+    var Qry;
+    var sqlFile = Project.Path + "Stores\\Files\\LogScenarioIds.sql";
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI);
+
+    Qry = ADO.CreateADOQuery();
+    Qry.ConnectionString = ProjectSuite.Variables.myConnString;
+    Qry.CommandTimeout = 300;
+    Qry.SQL = sqlQuery;
+    Qry.Open();
+    Qry.First();
+    
+    Log.AppendFolder("Generated Scenario(s)", "");
+    while (!Qry.EOF) {
+        Log.Message("Generated Scenario: " + Qry.FieldByName("ScenarioId").Value);
+        Qry.Next();
+    };
+    Log.PopLogFolder();
+    
+    Qry.Close();
+}
+
+function checkOverlappingVessels() {
+    var Qry;
+    var sqlFile = Project.Path + "Stores\\Files\\OverlappingVessels.sql";
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI);
+
+    Qry = ADO.CreateADOQuery();
+    Qry.ConnectionString = ProjectSuite.Variables.myConnString;
+    Qry.CommandTimeout = 300;
+    Qry.SQL = sqlQuery;
+    Qry.Open();
+    Qry.First();
+    while (!Qry.EOF) {
+        Log.Warning("OVERLAPPING VESSELS | ScenarioId: " + Qry.FieldByName("ScenarioId").Value +
+            " StartDate: " + Qry.FieldByName("StartDate").Value + " Berth: " + Qry.FieldByName("Name").Value +
+            " Nomination1: " + Qry.FieldByName("Nom1").Value + " Nomination2: " + Qry.FieldByName("Nom2").Value);
+        Qry.Next();
+    };
+    Qry.Close();
+}
+
+function checkOverlappingCD() {
+    var Qry;
+    var sqlFile = Project.Path + "Stores\\Files\\OverlappingCarDumpers.sql"
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI)
+
+    Qry = ADO.CreateADOQuery();
+    Qry.ConnectionString = ProjectSuite.Variables.myConnString;
+    Qry.CommandTimeout = 300;
+    Qry.SQL = sqlQuery;
+    Qry.Open();
+    Qry.First();
+    while (!Qry.EOF) {
+        Log.Warning("OVERLAPPING CD | ScenarioId: " + Qry.FieldByName("ScenarioId").Value +
+            " StartDate: " + Qry.FieldByName("StartDate").Value + " RakeCode1: " + Qry.FieldByName("Rake1").Value + " RakeCode2: " +
+            Qry.FieldByName("Rake2").Value + " CarDumper: " + Qry.FieldByName("Name").Value);
+        Qry.Next();
+    };
+    Qry.Close();
+}
+
+function checkOverlappingMovements() {
+    var Qry;
+    var sqlFile = Project.Path + "Stores\\Files\\OverlappingMovements.sql"
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI)
+
+    Qry = ADO.CreateADOQuery();
+    Qry.ConnectionString = ProjectSuite.Variables.myConnString;
+    Qry.CommandTimeout = 300;
+    Qry.SQL = sqlQuery;
+    Qry.Open();
+    Qry.First();
+    while (!Qry.EOF) {
+        Log.Warning("OVERLAPPING Movement | ScenarioId: " + Qry.FieldByName("ScenarioId").Value +
+            " Source1: " + Qry.FieldByName("Source1").Value + " Source2: " + Qry.FieldByName("Source2").Value + 
+            " Start1: " + Qry.FieldByName("Start1").Value + " End1: " + Qry.FieldByName("End1").Value + 
+            " Start2: " + Qry.FieldByName("Start2").Value + " End2: " + Qry.FieldByName("End2").Value + 
+            " Duration1: " + Qry.FieldByName("Duration1").Value + " Duration2: " + Qry.FieldByName("Duration2").Value +
+            " Route1: " + Qry.FieldByName("Route1").Value + " Route2: " + Qry.FieldByName("Route2").Value +
+            " mmId1: " + Qry.FieldByName("mmId1").Value + " mmId2: " + Qry.FieldByName("mmId2").Value +
+            " IsPiggyBack: " + Qry.FieldByName("IsPiggyBack").Value);
+        Qry.Next();
+    };
+    Qry.Close();
+}
+
+function checkLongMaterialMovements() {
+    var Qry;
+    var sqlFile = Project.Path + "Stores\\Files\\LongMaterialMovements.sql"
+    var sqlQuery = aqFile.ReadWholeTextFile(aqConvert.VarToStr(sqlFile), aqFile.ctANSI)
+
+    Qry = ADO.CreateADOQuery();
+    Qry.ConnectionString = ProjectSuite.Variables.myConnString;
+    Qry.CommandTimeout = 300;
+    Qry.SQL = sqlQuery;
+    Qry.Open();
+    Qry.First();
+    while (!Qry.EOF) {
+        Log.Warning("LONG MATERIAL MOVEMENT |ScenarioId: " + Qry.FieldByName("ScenarioId").Value +
+            " MaterialMovementId: " + Qry.FieldByName("MaterialMovementId").Value);
+        Qry.Next();
+    };
+    Qry.Close();
+}
+
+function checkRoutePathStep() {
+    var AConnection, sqlCommand, recSet, result, cmd;
+
+    // Create a Connection object and specify connection string
+    AConnection = ADO.CreateADOConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.LoginPrompt = false;
+    AConnection.Open();
+
+    //Check current Config setting
+    try {
+        recSet = AConnection.Execute_("SELECT COUNT(*) AS Total FROM RoutePathStep");
+
+        result = recSet.Fields("Total").Value
+
+        if (result > 10) {
+            //
+        } else {
+            //Run SQL command to update required Value
+            runSQLFile("SIM_060_Restore_RoutePathSteps");
+            Delay(3000);
+        }
+    } catch (e) {
+        Log.Error(e.description);
+    }
+
+    AConnection.Close();
+}
+
+
+function restoreSynonyms() {
+    var AConnection, sqlCommand, recSet, result, cmd;
+
+    // Create a Connection object and specify connection string
+    AConnection = ADO.CreateADOConnection();
+    AConnection.ConnectionString = ProjectSuite.Variables.myConnString;
+    AConnection.LoginPrompt = false;
+    AConnection.Open();
+
+    //Check current Config setting
+    try {
+        recSet = AConnection.Execute_("SELECT COUNT(*) AS Total FROM sys.synonyms " +
+            "WHERE  (base_object_name LIKE ('%LSTIOPSDbSeedAutomation%'))");
+
+        result = recSet.Fields("Total").Value
+
+        if (result > 10) {
+            Log.Message("Synonyms already pointed to LSTDbAutomation Database");
+        } else {
+            //Run SQL command to update required Value
+            runSQLFile("Automation_Synonyms");
+            Log.Message("Synonyms repointed to LSTDbAutomation Database");
+        }
+    } catch (e) {
+        Log.Error(e.description);
+    }
+
+    AConnection.Close();
+}
+
+function RenameFile(type) {
+
+    var sPath;
+    var year = aqDateTime.GetYear(aqDateTime.Today());
+    var month = MonthofYear(aqDateTime.GetMonth(aqDateTime.Today()));
+    var myfile;
+
+    if(type =="xml"){
+      var fname = FileFinder("\\\\iorper-lstt01\\BHP Application Logs\\LST Scheduling Service - Automation\\Scenario\\", "Scenario*");
+      var OldPath = "\\\\iorper-lstt01\\BHP Application Logs\\LST Scheduling Service - Automation\\Scenario\\" + fname
+      var NewPath = "\\\\iorper-lstt01\\BHP Application Logs\\LST Scheduling Service - Automation\\Scenario\\Scenario.xml";
+    }
+    
+    if(type !=="xml" && type !=="exe"){
+      var fname = FileFinder("J:\\Reports\\" + type + "\\" + year + "\\" + month + "\\", "*.pdf");
+      var OldPath = "J:\\Reports\\" + type + "\\" + year + "\\" + month + "\\" + fname
+      var NewPath = "J:\\Reports\\" + type + "\\" + year + "\\" + month + "\\" + type + ".pdf";
+    }    
+    
+    // Renames the file
+    aqFile.Rename(OldPath, NewPath);
+    ProjectSuite.Variables.fileName = NewPath;
+}
+
+
+function DeleteFiles(type) {
+    var sPath;
+    var year = aqDateTime.GetYear(aqDateTime.Today());
+    var month = MonthofYear(aqDateTime.GetMonth(aqDateTime.Today()));
+    
+    if(type =="xml"){
+      sPath = "\\\\iorper-lstt01\\BHP Application Logs\\LST Scheduling Service - Automation\\Scenario\\*.xml";
+    }
+    if(type !=="xml"){
+      sPath = "J:\\Reports\\" + type + "\\" + year + "\\" + month + "\\*.pdf"; 
+      Delay(1000);
+    }    
+    // Deletes the files
+    aqFile.Delete(sPath);
+}
+
+function FileFinder(path, type) {
+    var accumulativeTime = 0;
+    var foundFiles, aFile;
+    foundFiles = null;
+
+    while (foundFiles == null && accumulativeTime < 60000){
+      
+      foundFiles = aqFileSystem.FindFiles(path, type);      
+      
+      if (foundFiles != null)
+          while (foundFiles.HasNext()) {
+              aFile = foundFiles.Next();
+              return aFile.Name;
+      }
+        else
+        Delay(2000);
+        accumulativeTime += 2000;
+      }
+      
+      if(foundFiles == null && accumulativeTime == 60000){
+        Log.Error("No files were found.");
+      }
+}
+
+function runLSTSchedulingApp() {
+
+    checkBrowserRunning();
+    Delay(1000);
+    //Opens the specified URL in a running instance of the specified browser.
+
+    Browsers.Item(btChrome).Navigate("http://iorper-lstt01:9092/port/#/port/scheduling/weekly/generations");
+    Sys.browser("chrome").WaitPage("http://iorper-lstt01:9092/port/#/port/scheduling/weekly/generations", 5000);
+
+}
+
+function checkBrowserRunning() {
+    //Launches the specified browser and opens the specified URL in it.
+  if(ProjectSuite.Variables.isAutomationRun != 1){
+
+    var p = Sys.FindChild("ProcessName", "chrome")
+    var ar = ProjectSuite.Variables.isAutomationRun;
+  
+        while (!p.Exists) {
+            Browsers.Item(btChrome).Run();
+            Delay(3000);
+            p = Sys.FindChild("ProcessName", "chrome")
+        }
+        // Delay(3000);
+        Sys.browser("chrome").WaitPage("*", 5000);
+  }
+}
+
+function refreshPage() {
+    //Refresh the currently viewed page.
+    var pageObj = Aliases.browser.Page("*");
+    pageObj.contentDocument.Script.eval("window.location.reload()");
+    Delay(5000);
+}
+
+function closeBrowsers() {
+    // Obtains the chrome process
+    if (Sys.Process("chrome").Exists) {
+
+        var p = Sys.FindChild("ProcessName", "chrome");
+        var ar = ProjectSuite.Variables.isAutomationRun;
+            try {
+                while (p.Exists) {
+                    p.Close();
+                    var isClosed = p.WaitProperty("Exists", false);
+                    if (!isClosed)
+                        p.Terminate();
+
+                    p = Sys.FindChild("ProcessName", "chrome");
+                }
+            } catch (e) {
+                Log.Error(e.description);
+            } finally {
+                Delay(5000);
+            }
+    }
+}
+
+function MonthofYear(no)
+{
+  switch (no) 
+  {
+    case 1: return "January";
+    case 2: return "February"; 
+    case 3: return "March";
+    case 4: return "April"; 
+    case 5: return "May"; 
+    case 6: return "June"; 
+    case 7: return "July"; 
+    case 8: return "August"; 
+    case 9: return "September"; 
+    case 10: return "October";
+    case 11: return "November";
+    case 12: return "December";
+  }
+}
+//Check file exists
+function checkFileExists(file)
+{
+  var sPath;
+  sPath = file;
+
+  if (!aqFile.Exists(sPath)){
+      Log.Error("File does not exist.");
+  }else{
+      Log.Message("File exists");
+  }
+}
+
+function PackResults() {
+
+    var WorkDir, FileList, ArchivePath;
+    var FileName, sPath, fcount;
+    var Day, Time;
+
+    Day = aqConvert.DateTimeToFormatStr(aqDateTime.Today(), "%Y.%m.%d");
+    Time = aqConvert.DateTimeToFormatStr(aqDateTime.Now(), "%H.%M");
+    
+    WorkDir = "\\\\iorper-lstt01\\Automation\\Results\\";
+    ArchivePath = "\\\\iorper-lstt01\\Automation\\Archived\\" + Day + ".zip";
+    sPath = WorkDir + "*.mht";
+    FileList = slPacker.GetFileListFromFolder(WorkDir);
+    
+    FileName = "Regression_" + Day + "_" + Time;
+    FileName = WorkDir + FileName + ".mht";
+    
+    if(aqFileSystem.GetFolderInfo(WorkDir).Files == null){
+      fcount = 0;
+    }
+    else {
+      fcount = aqFileSystem.GetFolderInfo(WorkDir).Files.Count;
+    };
+    
+    if(fcount > 10){
+     if (slPacker.Pack(FileList, WorkDir, ArchivePath))
+      Log.Message(fcount + " Regression Results have archived successfully.");
+      aqFile.Delete(sPath);
+    }
+
+    Log.SaveResultsAs(FileName, 2);
+
+
+  var mTo = "minette.botes@bhp.com; Ross.Green1@bhpbilliton.com; Damien.Cole@bhpbilliton.com; Wendy.Houlahan@bhpbilliton.com; vinoth.nageswaran@bhpbilliton.com";
+  
+  //var mTo = "vinoth.nageswaran@bhpbilliton.com";
+
+    var mFrom = "pss.automation@bhpbilliton.com";
+    var mFromName = "PSS Automation";
+    var mHost = "iorper-mon01";
+   
+    var mSubject = "Results | " + Day + " | Total Passed:  " + Project.Variables.Passcount +" | Total Failed:  " + Project.Variables.Failcount;
+    var total = Project.Variables.Passcount + Project.Variables.Failcount;
+    var passpercentage = Math.floor(Project.Variables.Passcount/total*100); 
+    var mBody = "Please find the link for PSS Automation reporting tool" + "\n"+
+    "http://iorper-lstt03.apac.ent.bhpbilliton.net:90/pss/datepicker.php"+ "\n" +
+    "Total Passed: " + Project.Variables.Passcount + "\n" +
+    "Total Failed: " +Project.Variables.Failcount + "\n"+
+    "Total Pass %: " +passpercentage+ "\n"+
+    "Total test cases executed: " + total + "\n" ;
+    
+   
+    
+    try {
+        SendMail(mTo, mHost, mFromName, mFrom, mSubject, mBody);
+    } catch (exception)
+
+    {
+
+        Log.Error("E-mail cannot be sent", exception.description);
+
+        return false;
+
+    }
+
+    Log.Message("Message to <" + mTo + "> was successfully sent");
+
+    return true;
+}
+
+
+
+
+
+function Testlogs()
+{
+
+for (var i = 0; i < Project.TestItems.ItemCount; i++)
+    LogTestItemInfo (Project.TestItems.TestItem(i));
+}
+
+function LogTestItemInfo (ti)
+{
+
+
+  var tiinfo = "Name: " + ti.Name + "\r\n" +
+           "Description: " + ti.Description + "\r\n" +
+           "Test: " + (!strictEqual(ti.ElementToBeRun, null) ? ti.ElementToBeRun.Caption : "not specified") + "\r\n" +
+           "Enabled: " + ti.Enabled + "\r\n" +
+           "Stop on error: " + ti.StopOnError + "\r\n" +
+           "Count: " + ti.Count + "\r\n" +
+           "Timeout: " + ti.Timeout + "\r\n\r\n" +
+           "Is currently running: " + ((ti.Iteration > 0) ? "yes" : "no");
+
+  Log.AppendFolder (ti.Name, tiinfo);
+  for (var i = 0; i < ti.ItemCount; i++)
+    LogTestItemInfo (ti.TestItem(i));
+  Log.PopLogFolder();
+}
+
+function GeneralEvents_OnStopTest(Sender)
+
+{
+status=Project.Variables.Status;
+   
+   //To capture Test stop time
+    
+  var date =aqConvert.DateTimeToFormatStr(aqDateTime.Today(), "%Y/%m/%d");
+  var time = aqConvert.DateTimeToFormatStr(aqDateTime.Time(), "%H:%M:%S");
+  var timestamp= date+" "+time;
+  Project.Variables.Stoptime=timestamp;
+
+Reports.writedatatotextfile(status);
+  var ErrorCount = Log.ErrCount;
+
+  if(ErrorCount>0){
+    ProjectSuite.Variables.FailedCount++;  
+  }
+   
+}
+
+
+
+
+function ResultsinXML()
+
+{
+  Log.Message("Before logging", 350);
+
+  Log.SaveResultsAs("C:\\temp\\xml\\Log.xml", lsXML);
+  
+  //Log.SaveResultsAs("C:\\temp\\html\\", lsHTML);
+ Log.Message("After logging", 350);
+
+
+}
+
+
+function PushCSVtoOnlinePortal() {
+    Indicator.PushText("Pushing CSVtoOnlinePortal....");
+    aqUtils.Delay(2000, Indicator.Text);
+    var file = Project.Path + "Stores\\Files\\PushCSVOnlinetoserver.ps1"
+    //var cmd = Sys.OleObject("WScript.Shell").Run("\"" + file + "\"", 0, true);
+    var cmd = Sys.OleObject("WScript.Shell").Run("powershell -ExecutionPolicy Bypass -file \"" + file + "\"", 0, true);
+    Indicator.PopText();
+    Delay(2000);
+}
+
+
+function Delay(sec){
+  
+
+aqUtils.Delay(sec, Indicator.Text);
+}
+
+
+
+
+
+
+
+
+
