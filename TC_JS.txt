@@ -1,0 +1,39 @@
+//Key Value pair
+
+var obj = {
+    key1: value1,
+    key2: value2
+};
+Using dot notation:
+obj.key3 = "value3";
+Using square bracket notation:
+obj["key3"] = "value3";
+The first form is used when you know the name of the property. The second form is used when the name of the property is dynamically determined. Like in this example:
+
+var getProperty = function (propertyName) {
+    return obj[propertyName];
+};
+
+getProperty("key1");
+getProperty("key2");
+getProperty("key3");
+
+************************************************************************************************************************
+
+//URL
+
+Sys.Browser("iexplore").Page("http://www.example.com/index.asp?sid=*")
+
+*****************************************************************************************************************************
+
+function clickObject(propName, propValue,depthOfSearch)
+
+{
+
+    Sys.Process("yourApp").FindChild(propName,propValue,depthOfSearch).click(0,0);
+
+}
+
+***************************************************************************************************************************
+
+https://support.smartbear.com/testcomplete/docs/reference/test-objects/controls/web/general/list-box/properties.html
