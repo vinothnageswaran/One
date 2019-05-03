@@ -53,19 +53,14 @@ width: 260px;
 
 </body>
 
-<?php 
-
+<?php
 error_reporting(0);
-
 $link_address1 = 'Datepicker.php';
-echo "<a class='fixed' href='".$link_address1."'>Home</a>";
-			
-			
-$sqlname='localhost';
-$username='root';
-$table='SOCRauto';
-$password='';
-
+echo "<a class='fixed' href='" . $link_address1 . "'>Home</a>";
+$sqlname  = 'localhost';
+$username = 'root';
+$table    = 'SOCRauto';
+$password = '';
 /**
 
 if(isset($_POST['password']))
@@ -78,63 +73,40 @@ $password= '';
 }
 
 **/
-$db='SOCR';
-
-
-$file=$_POST['csv'];
-
+$db       = 'SOCR';
+$file     = $_POST['csv'];
 //Terminate code when CSV file is empty
-
-if ($file== null)
-exit("");
-
-
-
-
-$cons= mysqli_connect("$sqlname", "$username","$password","$db") or die(mysql_error());
+if ($file == null)
+    exit("");
+$cons = mysqli_connect("$sqlname", "$username", "$password", "$db") or die(mysql_error());
 //$result1=mysqli_query($cons,"select count(*) count from $table");
 //$r1=mysqli_fetch_array($result1);
 //$count1=(int)$r1['count'];
 //If the fields in CSV are not seperated by comma(,)  replace comma(,) in the below query with that  delimiting character 
 //If each tuple in CSV are not seperated by new line.  replace \n in the below query  the delimiting character which seperates two tuples in csv
 // for more information about the query http://dev.mysql.com/doc/refman/5.1/en/load-data.html
-
 //Delete all rows before uploading the data
-
 //$delete = "delete from PSSAUTO";
-
-
-
 //mysqli_query($cons,"$delete") or die(mysqli_error($cons));
-
 //echo "<br>Cleaning up tables </br>";
-
 mysqli_query($cons, '
-    LOAD DATA INFILE "'.$file.'"
-        REPLACE INTO TABLE '.$table.'
+    LOAD DATA INFILE "' . $file . '"
+        REPLACE INTO TABLE ' . $table . '
         FIELDS TERMINATED by \',\'
         LINES TERMINATED BY \'\r\n\'
 		
 ');
-
 //delete empty rows if there are any
-
 //$deleteemptyrows="delete from PSSAUTO where OwnerCodeEvent=''";
 //mysqli_query($cons,"$deleteemptyrows") or die(mysqli_error($cons));
-
 //display number of records updated in the daabase
-
-$result2=mysqli_query($cons,"select count(*) count from $table");
-$r2=mysqli_fetch_array($result2);
-$count2=$r2['count'];
-
+$result2 = mysqli_query($cons, "select count(*) count from $table");
+$r2      = mysqli_fetch_array($result2);
+$count2  = $r2['count'];
 //$count=$count2-$count1;
-if($count2>0)
-echo "Success";
+if ($count2 > 0)
+    echo "Success";
 echo "<b> total $count2 records have been added </b> ";
-
- 
-
 ?>
 
 

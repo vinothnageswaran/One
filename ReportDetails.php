@@ -56,63 +56,44 @@
 <body>
 
 <style>
-<?php include 'Report.css'; ?>
+<?php
+include 'Report.css';
+?>
 </style>
 
 
 <?php
 $servername = "localhost";
-$username = "root";
-$password = "";
-$database = "PSS";
-
-echo "\t" ;
-echo "\t" ;
-echo "\t" ;
-echo "\t" ;
-
-
+$username   = "root";
+$password   = "";
+$database   = "SOCR";
+echo "\t";
+echo "\t";
+echo "\t";
+echo "\t";
 session_start();
-
-
-
 // Create connection			
-
 $conn = mysqli_connect($servername, $username, $password, $database);
 // Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
-   mysqli_select_db($conn,$database) or die(mysql_error());
-  			
-			//$ReverseStartdate = $_GET["datepicker1"];
-			//$startdate=date("Y-m-d", strtotime($ReverseStartdate) );
-			//$startdate ='2018-11-29';
-			
-		$startdate = $_GET['compna']; 
-		//$startdate = $_SESSION["execdate"];
-		
-		$query1 = "SELECT TestCase,Status,Executiondate, TIME(Starttime) as Stime , TIME(Endtime) as Etime , Errormessage FROM PSSAUTO where Executiondate='$startdate' order by Executiontime";
-			 $TestSummary = "Select count(Testcase) as Testcasecount , COUNT(IF(status='PASS',1, NULL)) 'PASS', COUNT(IF(status='FAIL',1, NULL)) 'FAIL' 
-		
-			from PSSAUTO where Executiondate='$startdate'";
-		
-			
-			
-			
-			
-			$timestamp = strtotime($startdate);
-			$day = date('l', $timestamp);
-			$formattedDate = date('F d, Y', $timestamp);
-			
-			
-			$link_admin = 'csv2sql.php';
-			$link_datepicker = 'Datepicker.php';
-			$link_Clinicssummary= 'Clinicsummary.php';
-			
-			
-			
-			 echo "<div class='col-xl-12'>
+mysqli_select_db($conn, $database) or die(mysql_error());
+//$ReverseStartdate = $_GET["datepicker1"];
+//$startdate=date("Y-m-d", strtotime($ReverseStartdate) );
+//$startdate ='2018-11-29';
+$startdate           = $_GET['compna'];
+//$startdate = $_SESSION["execdate"];
+$query1              = "SELECT TestCase,Testitem,Status,Executiondate, TIME(Starttime) as Stime , TIME(Endtime) as Etime,Errormessage FROM socrauto where Executiondate='$startdate' order by Executiontime";
+$TestSummary         = "Select count(Testcase) as Testcasecount ,Testitem, COUNT(IF(status='PASS',1, NULL)) 'PASS', COUNT(IF(status='FAIL',1, NULL)) 'FAIL' 
+			from socrauto where Executiondate='$startdate'";
+$timestamp           = strtotime($startdate);
+$day                 = date('l', $timestamp);
+$formattedDate       = date('F d, Y', $timestamp);
+$link_admin          = 'csv2sql.php';
+$link_datepicker     = 'Datepicker.php';
+$link_Clinicssummary = 'Clinicsummary.php';
+echo "<div class='col-xl-12'>
 			 <table class='table table-hover table-sm table-responsive  table-warning'>
 			  <tr>
 			<div class='container'>
@@ -121,25 +102,17 @@ if (!$conn) {
 			<th>$day</th>
 			
 			</tr>";
-			
-			
-			echo "<br>";
-			//links
-	
-			
-			echo "<a href='".$link_datepicker."'>Home</a>";		
-			echo str_repeat('&nbsp;', 5); 
-		//	echo "<a href='".$link_Clinicssummary."'>Clinics Summary</a>";
-		//	echo str_repeat('&nbsp;', 5); 
-			echo "<a href='".$link_admin."'>Admin</a>";
-	
-			
-             $raw_results = mysqli_query($conn,"$query1") or die(mysqli_error($conn)); 
-			 $raw_results1 = mysqli_query($conn,"$TestSummary") or die(mysqli_error($conn)); 
-			
-			 //Column headers
-			 
-			 echo "<div class='col-xl-12'>
+echo "<br>";
+//links
+echo "<a href='" . $link_datepicker . "'>Home</a>";
+echo str_repeat('&nbsp;', 5);
+//	echo "<a href='".$link_Clinicssummary."'>Clinics Summary</a>";
+//	echo str_repeat('&nbsp;', 5); 
+echo "<a href='" . $link_admin . "'>Admin</a>";
+$raw_results = mysqli_query($conn, "$query1") or die(mysqli_error($conn));
+$raw_results1 = mysqli_query($conn, "$TestSummary") or die(mysqli_error($conn));
+//Column headers
+echo "<div class='col-xl-12'>
 			 
 			 	
 			 
@@ -148,6 +121,7 @@ if (!$conn) {
 			<tr>
 			<th class='th-sm'>Sno</th>
 			<th>Test case</th>
+			<th>Test item</th>
 			<th>Status</th>
 		
 
@@ -158,99 +132,58 @@ if (!$conn) {
 			</thead>
 			</div>
 			</tr>";
-			
-			
-		$sno=0;
-				
-					
-		while($results = mysqli_fetch_assoc($raw_results)){
-			
-			$sno++;
-			echo "<tr>";
-			echo"<td>$sno</td>";
-			echo "<td>".$results['TestCase']."</td>";
-			
-				if($results['Status']=='PASS') // 
-         echo "<td style='background-color: #f0f8ff;'>".$results['Status']."</td>"; 
-		else   if($results['Status']=='FAIL')// 
-         echo "<td style='background-color: #FF0000;'>".$results['Status']."</td>"; 
-			
-			//echo "<td>".$results['Status']." </td>";
-			//echo "<td>".$results['Appointmentdate']."</td>";
-			//echo "<td>".$results['Executiondate']." </td>";
-			//echo "<td>".$results['Executiontime']."</td>";
-			//echo "<td>".$results['Stime']."</td>";
-			//echo "<td>".$results['Etime']."</td>";
-			
-			
-			
-			
-			$S_time = strtotime($results['Stime']);
-			$E_time = strtotime($results['Etime']);
-			$Testdurationinsec= $E_time - $S_time;
-			$Testduration= gmdate("H:i:s", $Testdurationinsec);
-			
-			echo "<td>$Testduration</td>";
-			$Remarks= ($Testdurationinsec >120)? 'More than 2 minutes !' : '';
-			
-			echo "<td>$Remarks</td>";
-			
-			echo "<td>".$results['Errormessage']."</td>";
-		
-			
-			
-			
-  
-  
-  
-			
-			}
-						
-			while($results1 = mysqli_fetch_assoc($raw_results1)){
-			//echo "<td>".$results1['TestCasecount']."</td>";
-			
-			
-			echo "<tr>";
-			echo " </tr>";
-			
-			echo"<td></td>";
-			echo"<td>
-			<span style='font-weight:bold'>Total PASS</span><br></td>" ; 
-			"<br></br>";
-			echo "<td><span style='font-weight:bold'>".$results1['PASS']."</span></td>";
-			
-			echo "<tr>";
-			
-			echo"<td></td>";
-			echo"<td>
-			<span style='font-weight:bold'>Total FAIL</span><br></td>" ; 
-			"<br></br>";
-			echo "<td><span style='font-weight:bold'>".$results1['FAIL']."</span></td>";
-			echo " </tr>";
-			
-			//echo"<td></td>";
-			
-			$GrandTotal= $results1['PASS'] + $results1['FAIL'];
-			
-			echo "<tr>";
-			
-			echo"<td></td>";
-			
-			echo"<td>
-			<span style='font-weight:bold'>Grand Total</span><br></td>" ; 
-			"<br></br>";
-			echo "<td><span style='font-weight:bold'>$GrandTotal</span></td>";
-			
-			echo " </tr>";
-			
-			
-			
-		}
-		
-		
-
-         
-
+$sno = 0;
+while ($results = mysqli_fetch_assoc($raw_results)) {
+    $sno++;
+    echo "<tr>";
+    echo "<td>$sno</td>";
+    echo "<td>" . $results['TestCase'] . "</td>";
+    echo "<td>" . $results['Testitem'] . "</td>";
+    if ($results['Status'] == 'PASS') // 
+        echo "<td style='background-color: #f0f8ff;'>" . $results['Status'] . "</td>";
+    else if ($results['Status'] == 'FAIL') // 
+        echo "<td style='background-color: #FF0000;'>" . $results['Status'] . "</td>";
+    //echo "<td>".$results['Status']." </td>";
+    //echo "<td>".$results['Appointmentdate']."</td>";
+    //echo "<td>".$results['Executiondate']." </td>";
+    //echo "<td>".$results['Executiontime']."</td>";
+    //echo "<td>".$results['Stime']."</td>";
+    //echo "<td>".$results['Etime']."</td>";
+    $S_time            = strtotime($results['Stime']);
+    $E_time            = strtotime($results['Etime']);
+    $Testdurationinsec = $E_time - $S_time;
+    $Testduration      = gmdate("H:i:s", $Testdurationinsec);
+    echo "<td>$Testduration</td>";
+    $Remarks = ($Testdurationinsec > 120) ? 'More than 2 minutes !' : '';
+    echo "<td>$Remarks</td>";
+    echo "<td>" . $results['Errormessage'] . "</td>";
+}
+while ($results1 = mysqli_fetch_assoc($raw_results1)) {
+    //echo "<td>".$results1['TestCasecount']."</td>";
+    echo "<tr>";
+    echo " </tr>";
+    echo "<td></td>";
+    echo "<td>
+			<span style='font-weight:bold'>Total PASS</span><br></td>";
+    "<br></br>";
+    echo "<td><span style='font-weight:bold'>" . $results1['PASS'] . "</span></td>";
+    echo "<tr>";
+    echo "<td></td>";
+    echo "<td>
+			<span style='font-weight:bold'>Total FAIL</span><br></td>";
+    "<br></br>";
+    echo "<td><span style='font-weight:bold'>" . $results1['FAIL'] . "</span></td>";
+    echo " </tr>";
+    //echo"<td></td>";
+    $GrandTotal = $results1['PASS'] + $results1['FAIL'];
+    echo "<tr>";
+    echo "<td></td>";
+    echo "<td>
+			<span style='font-weight:bold'>Grand Total</span><br></td>";
+    "<br></br>";
+    echo "<td><span style='font-weight:bold'>$GrandTotal</span></td>";
+    echo " </tr>";
+}
 ?>
 </body>
 </html>
