@@ -1,0 +1,24 @@
+{
+    "LP": {
+        "WEEKLY_BUTTON": "#tile-Weekly > div > div.card-body",
+        "GENERATION_BUTTON": "#menu-generation-sets",
+        "URL" :"http://iorper-lstt01:9092/port/#/port",
+        "EVENTS_BUTTON":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > mes-scheduling-scenario-menu > nav > div.order-1.order-lg-2.ml-lg-auto.py-2 > mes-port-menu-button > div:nth-child(1) > mes-dropdown > div > button > div"
+
+        },
+    "Dashboardobj" :{
+        "Yard" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__yard > div.toolbar__label",
+        "ALL" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__equipment > div.btn-group > button",
+        "Equipment" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__equipment > div.toolbar__label",
+        "Save": "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-actions > button",
+        "db":"#menu-dashboard"
+
+
+
+
+    }
+
+
+
+
+    }

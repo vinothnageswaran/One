@@ -1,0 +1,17 @@
+{
+  "baseUrl": "http://iorper-lstt01:9092/port/#/port",
+  "ignoreTestFiles": "*.js",
+  "testFiles": "**/*.{feature,features}",
+  "db": {
+    "userName": "Automationuser",
+    "password": "Password123",
+    "server": "IORPER-SQLT06\\SQL2014",
+    "options": {
+      "database": "lstdbautomation",
+      "encrypt": true,
+      "rowCollectionOnRequestCompletion": true,
+      "viewportWidth": 1524,
+      "viewportHeight": 868
+    }
+  }
+}

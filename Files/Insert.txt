@@ -1,0 +1,1 @@
+SELECT AssetId FROM LSTDbAutomation.dbo.Asset where assetid=100
