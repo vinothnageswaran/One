@@ -2,6 +2,7 @@
   "baseUrl": "http://iorper-lstt01:9092/port/#/port",
   "ignoreTestFiles": "*.js",
   "testFiles": "**/*.{feature,features}",
+  "chromeWebSecurity": false,
   "db": {
     "userName": "Automationuser",
     "password": "Password123",
@@ -12,6 +13,18 @@
       "rowCollectionOnRequestCompletion": true,
       "viewportWidth": 1524,
       "viewportHeight": 868
+
+      
     }
+  },
+  "reporter": "./node_modules/mochawesome/src/mochawesome.js",
+  "reporterOptions": {
+    "reportDir": "mochawesome-report",
+    "overwrite": false,
+    "html": false,
+    "json": true
   }
+  
+   
+  
 }
