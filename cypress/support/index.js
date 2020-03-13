@@ -20,4 +20,14 @@ import './commands'
 // require('./commands')
 
 import sqlServer from 'cypress-sql-server';
+import 'cypress-promise/register'
 sqlServer.loadDBCommands();
+
+require('cypress-xpath')
+
+Cypress.on('fail', error => {
+    Cypress.runner.stop()
+    throw error; // throw error to have test fail
+  });
+
+

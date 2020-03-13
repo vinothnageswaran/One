@@ -1,0 +1,108 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 0,
+    "pending": 0,
+    "failures": 1,
+    "start": "2020-03-10T13:30:37.139Z",
+    "end": "2020-03-10T13:30:53.531Z",
+    "duration": 16392,
+    "testsRegistered": 1,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "e0f69d0c-a8d2-48b2-b862-a320f5c68bf8",
+      "title": "",
+      "fullFile": "",
+      "file": "",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "d99b9c16-2558-42ca-b73f-163130e348d3",
+          "title": "Verify Auxiliary page",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "Verify Auxuiliary page has Stockpiles , berths , In-Hatch Blending, Alerts and Warnings",
+              "fullTitle": "Verify Auxiliary page Verify Auxuiliary page has Stockpiles , berths , In-Hatch Blending, Alerts and Warnings",
+              "timedOut": null,
+              "duration": 16111,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "const state = window.testState;\nreturn cy\n  .then(() => state.onStartScenario(scenario, indexedSteps))\n  .then(() =>\n    resolveAndRunBeforeHooks.call(this, scenario.tags, state.feature.name)\n  )\n  .then(() =>\n    indexedSteps.forEach(step => stepTest.call(this, state, step, rowData))\n  )\n  .then(() =>\n    resolveAndRunAfterHooks.call(this, scenario.tags, state.feature.name)\n  )\n  .then(() => state.onFinishScenario(scenario));",
+              "err": {
+                "message": "CypressError: Timed out retrying: Expected to find element: 'body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(1) > a', but never found it.",
+                "estack": "CypressError: Timed out retrying: Expected to find element: 'body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(1) > a', but never found it.\n    at Object.cypressErr (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104836:11)\n    at Object.throwErr (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104791:18)\n    at Object.throwErrByPath (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104823:17)\n    at retry (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:96197:16)\n    at onFailFn (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:85350:16)\n    at tryCatcher (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:138875:23)\n    at Promise._settlePromiseFromHandler (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136811:31)\n    at Promise._settlePromise (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136868:18)\n    at Promise._settlePromise0 (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136913:10)\n    at Promise._settlePromises (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136988:18)\n    at Async../node_modules/bluebird/js/release/async.js.Async._drainQueue (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133600:16)\n    at Async../node_modules/bluebird/js/release/async.js.Async._drainQueues (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133610:10)\n    at Async.drainQueues (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133484:14)",
+                "diff": null
+              },
+              "uuid": "a58be613-f4be-4908-85a8-4858dcae6b43",
+              "parentUUID": "d99b9c16-2558-42ca-b73f-163130e348d3",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "a58be613-f4be-4908-85a8-4858dcae6b43"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 16111,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "5.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false
+      },
+      "version": "4.1.0"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/reports/separate-reports",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "4.0.1"
+    }
+  }
+}

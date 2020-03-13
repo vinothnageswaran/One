@@ -27,7 +27,7 @@ When('I Click on Weekly', async () => {
 
 Then('I see "Events"', async () => {
   LandingPage.VerifyEvents("Events");
- Common.runSQLfile("sqldata");
+ Common.PSS_runSQLfile("sqldata");
 
 });
 

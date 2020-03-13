@@ -2,7 +2,7 @@
     "LP": {
         "WEEKLY_BUTTON": "#tile-Weekly > div > div.card-body",
         "GENERATION_BUTTON": "#menu-generation-sets",
-        "URL" :"http://iorper-lstt01:9092/port/#/port",
+        "URL" :"http://iorper-lstt01:9091/port/#/port",
         "EVENTS_BUTTON":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > mes-scheduling-scenario-menu > nav > div.order-1.order-lg-2.ml-lg-auto.py-2 > mes-port-menu-button > div:nth-child(1) > mes-dropdown > div > button > div"
 
         },
@@ -11,14 +11,127 @@
         "ALL" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__equipment > div.btn-group > button",
         "Equipment" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__equipment > div.toolbar__label",
         "Save": "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-actions > button",
-        "db":"#menu-dashboard"
+        "db":"#menu-dashboard",
+        "Auxiliary":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-actions > button:nth-child(4)",
+        "ImportPSTSchedule":"mes-dm-actions > button[type='button'].btn.btn-secondary.ng-star-inserted",
+        "NY":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__yard > div.btn-group.ng-star-inserted > button:nth-child(2)",
+        "SY":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__yard > div.btn-group.ng-star-inserted > button:nth-child(3)",
+        "EY":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__yard > div.btn-group.ng-star-inserted > button:nth-child(4)",
+        "WY":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div > div > mes-dm-filters > div.toolbar__yard > div.btn-group.ng-star-inserted > button:nth-child(5)",
+        "Rakearrivalpanel":"#rakeArrivalPanel > mes-dm-rake-arrivals > div.planner__header > h3",
+        "StabledRakes":"as-split-area#stableRakePanel h3",
+        "SPAAllocation":"#SPAAllocationPanel > mes-stockpile-planner-panel > div.planner__header > h3",
+        "Tide":"#tidePanel > mes-dm-tidal-chart > mes-dm-tide-chart > div.planner__header > h3",
+        "Rakehover":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > aside > button:nth-child(1) > mes-svg-icon > svg > path"
+        
+    },
+
+    "Auxiliaryobj" :{
+        "Stockpiiles": "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(1) > a",
+        "Berths": "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(2) > a",
+        "InHatchBlending": "body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(3) > a",
+        "Alerts":"body > mes-app > dds-master-page > bhp-master-body > div > mes-body-strip > div:nth-child(1) > ul > li:nth-child(4) > a"
+    },
+
+    "Nominationsource" :{
+        "Vesselv": "as-split-area#portAllocationPanel h2",
+        "productv" : "as-split-area#portAllocationPanel h6",
+        "lefttoload" :"as-split-area#portAllocationPanel div.d-flex.pb-2.ml-auto > span",
+        "tonnes" :"as-split-area#portAllocationPanel div:nth-child(3) > span",
+        "tonnesv" : "input#nomination0Tonnes",
+        "lefttoloadv" : "#nomination0TonnesLeft",
+        "spa" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > aside > button:nth-child(4) > mes-svg-icon > svg",
+        "Stockpile" : "div#cdk-drop-list-0 span.dropdown-toggle__inner",
+        "Stockpilecapacity" : "div#cdk-drop-list-0 input[name='tonnes']",
+        "Adddualload": "#cdk-drop-list-0 > div > div > button:nth-child(1)",
+        "All": "div#cdk-drop-list-0 label",
+        "Manualoverride" : "div#cdk-drop-list-0 div.btn-group.px-2 > button > i",
+        "Removesource" : "div#cdk-drop-list-0 div.source-list__item.cdk-drag.ng-star-inserted > div > button > i",
+        "Addsource" : "#cdk-drop-list-0 > div > div > button:nth-child(2)"
+
+    },
+
+    "Sidebar" :{
+
+         "Raketitle" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.card-header.rake__header > h4",
+         "Producttop": "div > span.product__name",
+         "Productbottom": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > h6",
+         "Portarrival" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > dl > div:nth-child(1) > dt",
+         "Portarrivalv": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > dl > div:nth-child(1) > dd",
+         "CurrentLocation" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > dl > div:nth-child(2) > dt",
+         "CurrentLocationv": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > dl > div:nth-child(2) > dd",
+         "ProductQaulitty" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > h5",
+         "Fe" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > dl > div:nth-child(1) > dt",
+         "Fev": "mes-dm-product-quality > dl > div:nth-child(1) > dd",
+         "P":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > dl > div:nth-child(2) > dt",
+         "Pv":"mes-dm-product-quality > dl > div:nth-child(2) > dd",
+         "Al2o3": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > dl > div:nth-child(3) > dt",
+         "Al2o3v" : "mes-dm-product-quality > dl > div:nth-child(3) > dd",
+         "Sio2":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > dl > div:nth-child(4) > dt",
+         "Sio2v":"div:nth-child(4) > dd",
+         "H2o":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.rake__body > mes-dm-product-quality > dl > div:nth-child(5) > dt",
+         "H2ov":"div:nth-child(5) > dd",
+         "Allocations": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.card-header.ng-star-inserted > h4",
+         "ScheduledDumpTime" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.allocation__body.ng-star-inserted > dl > div:nth-child(1) > dt",
+         "ScheduledDumpTimev": "div.allocation__body.ng-star-inserted > dl > div:nth-child(1) > dd",
+         "RequiredTimeToDumper":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.allocation__body.ng-star-inserted > dl > div:nth-child(2) > dt",
+         "RequiredTimeToDumperv" : "div.allocation__body.ng-star-inserted > dl > div:nth-child(2) > dd",
+         "Vessel" :"div.card-header.vessel-detail__header > h4",
+         "VesselDetails": "div.card-header.vessel-detail__header > h4 > span",
+         "ArrivalTime": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(1) > dt",
+         "ArrivalTimev":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(1) > dd",
+         "SailTime": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(2) > dt",
+         "SailTimev": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(2) > dd",         
+         "SailBuffer" :"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(3) > dt",
+         "SailBufferv": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-time > div > dl > div:nth-child(3) > dd",
+         "GLR":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > div > div",
+         "GLRONTARGET": "mes-dm-vessel-details-glr > div > span",
+         "Current": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > dl > div:nth-child(1) > dt",
+         "Currentv": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > dl > div:nth-child(1) > dd",         
+         "Required": "mes-dm-vessel-details-glr > dl > div:nth-child(2) > dt",
+         "Requiredv" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > dl > div:nth-child(2) > dd",
+         "Allocated" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > dl > div:nth-child(3) > dt",
+         "Allocatedv": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-glr > dl > div:nth-child(3) > dd",
+         "LoadingTarget": "div.description-list__label > div > span:nth-child(1)",
+         "LoadingTargetv": "div.bar.negative > span:nth-child(2)",
+         "LoadingTargetv1" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > div > div.description-list__group.vessel-detail__progress > div.description-list__value > mes-vessel-details-progression-bar > div.bar.negative > span:nth-child(1)",
+         "Contracted": "div.description-list__label > div > span:nth-child(2)",
+         "Contractedv":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > div > div.description-list__group.vessel-detail__progress > div.description-list__value > mes-vessel-details-progression-bar > div.bar.negative > span:nth-child(2)",
+         "ProjectedQuality": "div.description-list__group.vessel-detail__projected-quality > div.description-list__label",
+         "ProjectedQuality_ONSPEC": "div.description-list__value > button",
+         "Remaining": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > div > div:nth-child(3) > div.description-list__label",
+         "Remainingv":"div:nth-child(3) > div.description-list__value",
+         "Unallocated": "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > div > div:nth-child(4) > div.description-list__label",
+         "Unallocatedv":"div:nth-child(4) > div.description-list__value",
+         "Customer":"body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > mes-dm-vessel-details-product > div > div > div.description-list__group.vessel-detail__customer.ng-star-inserted > div.description-list__label",
+         "Custmernamev":"div.description-list__value.text-capitalize > div",
+         "CarDumper" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.allocation__body.ng-star-inserted > mes-dm-allocation-tree",
+         "Designationroute" : "body > mes-app > dds-master-page > bhp-master-body > div > mes-main-body > ng-component > ng-component > div > mes-dm-sidebar > div > mes-dm-rake-details > div > div.allocation__body.ng-star-inserted > mes-dm-allocation-tree > div > ul > li > div > div.designation__route",
+         "RakenameandTonnes" : "div.card-header.rake__header > h4",
+         "Product" :"div > span.product__name",
+         "Routetonnes": "span.designation__amount > span.ng-star-inserted",
+         "Routeduration" : "span.designation__amount > small",
+         "AllocationsBerth":"div > div.designation__destination"
+
+  
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
     }
-
-
-
-
-    }
+}

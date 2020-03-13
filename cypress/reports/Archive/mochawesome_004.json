@@ -1,0 +1,108 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 0,
+    "pending": 0,
+    "failures": 1,
+    "start": "2020-03-10T13:35:11.311Z",
+    "end": "2020-03-10T13:36:11.359Z",
+    "duration": 60048,
+    "testsRegistered": 1,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "a9eaef70-b3df-43b3-a7e8-ec479964a03c",
+      "title": "",
+      "fullFile": "",
+      "file": "",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "3586503d-cd99-46c9-aebf-5cb747193d02",
+          "title": "Verify Sidebar on the Dashboard",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "Verify all the sidebar labels and its values",
+              "fullTitle": "Verify Sidebar on the Dashboard Verify all the sidebar labels and its values",
+              "timedOut": null,
+              "duration": 59837,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "const state = window.testState;\nreturn cy\n  .then(() => state.onStartScenario(scenario, indexedSteps))\n  .then(() =>\n    resolveAndRunBeforeHooks.call(this, scenario.tags, state.feature.name)\n  )\n  .then(() =>\n    indexedSteps.forEach(step => stepTest.call(this, state, step, rowData))\n  )\n  .then(() =>\n    resolveAndRunAfterHooks.call(this, scenario.tags, state.feature.name)\n  )\n  .then(() => state.onFinishScenario(scenario));",
+              "err": {
+                "message": "CypressError: Timed out retrying: Expected to find content: '11th Mar, 00:23' within the element: <dd.description-list__value> but never did.",
+                "estack": "CypressError: Timed out retrying: Expected to find content: '11th Mar, 00:23' within the element: <dd.description-list__value> but never did.\n    at Object.cypressErr (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104836:11)\n    at Object.throwErr (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104791:18)\n    at Object.throwErrByPath (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:104823:17)\n    at retry (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:96197:16)\n    at onFailFn (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:85350:16)\n    at tryCatcher (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:138875:23)\n    at Promise._settlePromiseFromHandler (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136811:31)\n    at Promise._settlePromise (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136868:18)\n    at Promise._settlePromise0 (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136913:10)\n    at Promise._settlePromises (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:136988:18)\n    at Async../node_modules/bluebird/js/release/async.js.Async._drainQueue (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133600:16)\n    at Async../node_modules/bluebird/js/release/async.js.Async._drainQueues (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133610:10)\n    at Async.drainQueues (http://iorper-lstt01:9092/__cypress/runner/cypress_runner.js:133484:14)",
+                "diff": null
+              },
+              "uuid": "eeaa89e7-0076-497e-8ac7-1ae0173210c0",
+              "parentUUID": "3586503d-cd99-46c9-aebf-5cb747193d02",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "eeaa89e7-0076-497e-8ac7-1ae0173210c0"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 59837,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "5.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false
+      },
+      "version": "4.1.0"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/reports/separate-reports",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "4.0.1"
+    }
+  }
+}

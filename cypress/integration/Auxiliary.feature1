@@ -1,0 +1,26 @@
+Feature: Verify Auxiliary page
+
+  Background:
+    Given User hit Auxiliary button on Deviation Management Dashboard
+    
+  @focus
+
+ Scenario: Verify Auxuiliary page has Stockpiles , berths , In-Hatch Blending, Alerts and Warnings
+ Then the first item on the top panel is "Stockpiles"
+ And the second item on the top panel is "Berths"
+ And the third item on the top panel is "In-Hatch Blending"
+ And the fourth item on the top panel is "Alerts & Warnings"
+    
+
+
+
+
+
+
+
+
+
+
+
+
+

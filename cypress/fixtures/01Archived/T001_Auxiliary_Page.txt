@@ -1,0 +1,64 @@
+-- Setup PST data
+
+use LstProxyAutomation
+go
+
+exec PointInflowOutflowToSeed
+
+delete from Seed.Inflow
+delete from Seed.Outflow
+delete from Seed.OutflowProduct
+delete from Seed.OutflowActivity
+
+declare @s datetime = dateadd(DD, -1, sysdatetime())
+declare @e datetime = dateadd(DD, 2, sysdatetime())
+
+declare @dtsStart datetime = dateadd(MINUTE, 15, sysdatetime())
+
+exec Seed.CreateOutflow 111111, 'A', @s, @e, 'MACF', 100000, 100000
+
+exec Seed.CreateReclaimOutflow 111111, 'BWR5', 'A3', 'MACF', @dtsStart, 120, 'A', 'SL2', '53', 12000
+
+go
+
+
+use LSTIOPSDbSeedAutomation
+go
+
+exec DeleteAll
+go
+
+declare @comm datetime = dateadd(DD, -1, sysdatetime())
+declare @laycanEnd datetime = dateadd(DD, 1, sysdatetime())
+exec CreateNominationOnBerth 111111, '999999', 'TBN TIM', @comm, 'A'
+exec CreateNominationItem 111111, 1, 'MACF', 100000, @comm, @comm, @laycanEnd
+exec CreateStockpile 'A3', 100000, 80000, 'MACF', 'Complete', 100, 500, 'NY'
+go
+
+
+-- Import PST -> PSS
+
+-- validate results
+
+use LSTDbAutomation
+go
+
+
+
+-- Update actuals for in progress reclaim
+
+use LSTIOPSDbSeedAutomation
+go
+
+declare @start datetime = dateadd(HOUR, -1, sysdatetime())
+exec CreateOperationalReclaimLoad 111111, 'A3', 'MACF', 6000, @start, null, 'BWR5', 'SL2', '53', 'A'
+
+-- Run update end point
+
+-- validate results
+
+use LSTDbAutomation
+go
+
+
+
